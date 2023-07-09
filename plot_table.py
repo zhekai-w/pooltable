@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import random
-import cv2
 import numpy as np
 import math
 
@@ -85,6 +84,55 @@ def findhitpoint(ballx, bally, vectorx, vectory):
     hitpointy = bally-y
     return hitpointx, hitpointy
 
+def outofbound(hitx, hity):
+    checkhitxplus = hitx + r
+    checkhityplus = hity + r
+    checkhitxminus = hitx - r 
+    checkhityminus = hity - r 
+    if checkhitxplus > tablewidth or checkhityplus > tableheight or checkhitxminus < 0 or checkhityminus < 0:
+        hitoutbound = 1
+    else:
+        hitoutbound = 0
+    return hitoutbound
+
+#make this a class with less in put(max in put cue, objectballi, objectballk2, objectballk1, aimpoint, n)
+def route(cue, cuetoivector, objectballi, itok2vector, objectballk2 ,k2tok1vector, objectballk1, toholevector,n): 
+    #fix cuefinalvector 
+    if n == 0:
+        cuefinalvector = [cuetoivector[0]-toholevector[0], cuetoivector[1]-toholevector[1]]
+        cuetoiL = math.sqrt(abs(cuetoivector[0])**2+abs(cuetoivector[1])**2)
+        itohL = math.sqrt(abs(toholevector[0])**2+abs(toholevector[1])**2)
+        dotproduct0 = cuetoivector[0]*toholevector[0] + cuetoivector[1]*toholevector[1]
+        cos = dotproduct0/(cuetoiL*itohL)
+        angle = math.acos(cos)
+        score = (-angle*1273 + 2000) + (- (cuetoiL+itohL) + 2000) + (-n*1000 + 2000)
+
+    elif n == 1:
+        cuefinalvector = [cuetoivector[0]-itok2vector[0],cuetoivector[1]-itok2vector[1]]
+        cuetoiL = math.sqrt(abs(cuetoivector[0])**2+abs(cuetoivector[1])**2)
+        itok2L = math.sqrt(abs(itok2vector[0])**2+abs(itok2vector[1])**2)
+        k2toholeL = math.sqrt(abs(toholevector[0])**2+abs(toholevector[1])**2)
+        angle0 = math.acos((cuetoivector[0]*itok2vector[0]+cuetoivector[1]*itok2vector[1])/(cuetoiL*itok2L))
+        angle1 = math.acos((itok2vector[0]*toholevector[0]+itok2vector[1]*toholevector[1])/(k2toholeL*itok2L))      
+        score = (-angle0*1273 + 2000)/2 + (-angle1*1273 + 2000)/2 + (- (cuetoiL+itok2L+k2toholeL) + 2000)  + (-n*1000 + 2000)
+
+    elif n == 2:
+        cuefinalvector = [cuetoivector[0]-itok2vector[0],cuetoivector[1]-itok2vector[1]]
+        cuetoiL = math.sqrt(abs(cuetoivector[0])**2+abs(cuetoivector[1])**2)
+        itok2L = math.sqrt(abs(itok2vector[0])**2+abs(itok2vector[1])**2)
+        k2tok1L = math.sqrt(abs(k2tok1vector[0])**2+abs(k2tok1vector[1])**2)
+        k1toholeL = math.sqrt(abs(toholevector[0])**2+abs(toholevector[1])**2)
+        angle0 = math.acos((cuetoivector[0]*itok2vector[0]+cuetoivector[1]*itok2vector[1])/(cuetoiL*itok2L))
+        angle1 = math.acos((itok2vector[0]*k2tok1vector[0]+itok2vector[1]*k2tok1vector[1])/(k2tok1L*itok2L))
+        angle2 = math.acos((k2tok1vector[0]*toholevector[0]+k2tok1vector[1]*toholevector[1])/(k1toholeL*k2tok1L))
+        score = (-angle0*1273 + 2000)/3 + (-angle1*1273 + 2000)/3 + (-angle2*1273 + 2000)/3 + (- (cuetoiL+itok2L+k2tok1L+k1toholeL) + 2000) + (-n*1000 + 2000)
+
+    return score,cuefinalvector,cue,cuetoivector, objectballi, itok2vector, objectballk2 ,k2tok1vector, objectballk1, toholevector,n
+
+# class Route:
+#     def __init__(self, cue, objectballi, objectballk1, objectballk2):
+
+#     pass
 
 if __name__ == '__main__':
 
@@ -93,11 +141,11 @@ if __name__ == '__main__':
     while illogical:
         cuex, cuey, objectballx, objectbally, n = generateballs(10, r)
         #objectball[-1] is cue ball
-        # objectballx = [1180,203,936,439,478]
-        # objectbally = [53,758,148,223,795]
-        # cuex = 288
-        # cuey = 195
-        # n = 5
+        # objectballx = [300,300,300,300,300,300+2*r,300+2*r,300+2*r,300+2*r,300+4*r,300+4*r,300+4*r,300+6*r,300+6*r,300+8*r]
+        # objectbally = [457,457+2*r,457+4*r,457-2*r,457-4*r,457+r,457+3*r,457-r,457-3*r,457,457+2*r,457-2*r,457+r,457-r,457]
+        # cuex = 1620
+        # cuey = 457
+        # n = 15
         objectballx.append(cuex)
         objectbally.append(cuey)
         print("number of balls:",n)
@@ -228,14 +276,6 @@ if __name__ == '__main__':
     plt.axis("equal")
     plt.show()
 
-    # #plot objectballs' and cue ball's center
-    # plt.scatter(objectballx, objectbally, c='blue', edgecolors='black',alpha=0.5)  #plot cue balls
-    # plt.scatter(cuex, cuey, c='red', edgecolors='black', alpha=0.5)   
-
-    # normallengh, normalvectorx, normalvectory, shadowx, shadowy = dottovector(objectballx[0], objectbally[0], aimpointx[0], aimpointy[0], objectballx[1], objectbally[1])
-    # plt.scatter(shadowx, shadowy, c='black')
-    # plt.quiver(shadowx, shadowy, normalvectorx, normalvectory,color='black',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
-
     #check if there are balls in between objectball and aiming point / cueball to hit point
     btball = []*n
     all_btball = []*6
@@ -251,7 +291,7 @@ if __name__ == '__main__':
                 # if the previous distance is lesser than the later distance then objectball[k] is not in the way of objectball[i] to aimpoint   
                 disota = disandvec(aimpointx[j],aimpointy[j],objectballx[i],objectbally[i])[0]
                 disoto = disandvec(objectballx[k],objectbally[k],objectballx[i],objectbally[i])[0]
-                if 0 <= btvdis < 2*r and disota > disoto+2*r:
+                if 0 <= btvdis < 2*r and disota+R > disoto:
                     count = count+1
                     #if count = 1 or 2, record objectball[k]s is in way of vector objectball[i] to aimpoint[j](index)
                     # Better solution ? just record k and let the index of all_KinwayofI do the rest(meaning k is in who's way) 
@@ -269,6 +309,8 @@ if __name__ == '__main__':
     print("how many ball(s) is in way of object to hole:\n",all_btball)
     print("who is in way of this vector:\n",all_KinwayofI)
     
+    ValidRoute = []
+    #route(cuetoivector, itok2vector, k2tok1vector, toholevector,n):
     #plot vectors from objectballs to holes which have no balls between 
     for i in range(0,n):
         for j in range(0,6):
@@ -278,15 +320,6 @@ if __name__ == '__main__':
                 temx = hitx-cuex
                 temy = hity-cuey
                 dotproduct = all_vectors_BHx[i][j]*temx + all_vectors_BHy[i][j]*temy
-                #check hit point out of bound
-                checkhitxplus = hitx + r
-                checkhityplus = hity + r
-                checkhitxminus = hitx - r 
-                checkhityminus = hity - r 
-                if checkhitxplus > 1920 or checkhityplus > 914 or checkhitxminus < 0 or checkhityminus < 0:
-                    hitoutbound = 1
-                else:
-                    hitoutbound = 0
                 #check if there is/are ball(s) in between cue to hit point
                 for k in range(0,n):
                     CtoIdis = dottovector(cuex,cuey,temx,temy,objectballx[k],objectbally[k])
@@ -298,16 +331,18 @@ if __name__ == '__main__':
                     else: 
                         ballinwayCI0 = 0
                 #if no ball in cue to hitpoint and both vectors' angle smaller than 90 degrees and hitpoint is not out of bound
-                if ballinwayCI0 == 0 and dotproduct > 0 and hitoutbound == 0:
+                if ballinwayCI0 == 0 and dotproduct > 0 and outofbound(hitx,hity) == 0:
                     plt.quiver(objectballx[i],objectbally[i],all_vectors_BHx[i][j],all_vectors_BHy[i][j],color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
-                    plt.quiver(cuex,          cuey,          all_cuetohitx[i][j],all_cuetohity[i][j],color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
+                    plt.quiver(cuex,          cuey,          temx,temy,color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
+                    temproute = route(cue=[cuex,cuey],cuetoivector=[temx, temy], objectballi=[objectballx[i],objectbally[i]],
+                                      toholevector=[all_vectors_BHx[i][j],all_vectors_BHy[i][j]],n=0,
+                                      itok2vector=[0,0],objectballk2=[0,0],k2tok1vector=[0,0],objectballk1=[0,0])
+                    ValidRoute.append(temproute)
 
 
             if all_btball[i][j] == 1:
-                #draw objectball[k] to aimpoint[j] vector and objectball[j] to shadow of objectball[k]'s vector 
-                k = all_KinwayofI[i][j][0]
-                #plt.quiver(objectballx[k],objectbally[k],all_vectors_BHx[k][j],all_vectors_BHy[k][j],color='black',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
                 #check objectball[k] to hitpoint (ball_btball[k][j])
+                k = all_KinwayofI[i][j][0]
                 if all_btball[k][j] == 0:
                     #draw objectball[j] to objectball[k]'s hitpoint
                     hitkx,hitky = findhitpoint(objectballx[k],objectbally[k],all_vectors_BHx[k][j],all_vectors_BHy[k][j])
@@ -323,7 +358,7 @@ if __name__ == '__main__':
                             break
                         else: 
                             ballinwayIK = 0
-                    if  ballinwayIK == 0 and dotproductk > 0:
+                    if  ballinwayIK == 0 and dotproductk > 0 and outofbound(hitkx,hitky) == 0:
                         #plt.quiver(objectballx[i],objectbally[i],temkx,temky,color='blue',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
                         #draw cue to objectball[i]'s hitpoint 
                         hitix, hitiy = findhitpoint(objectballx[i],objectbally[i],temkx,temky)
@@ -339,10 +374,14 @@ if __name__ == '__main__':
                                 break
                             else: 
                                 ballinwayCI1 = 0
-                        if  ballinwayCI1 == 0 and dotproducti > 0:
+                        if  ballinwayCI1 == 0 and dotproducti > 0 and outofbound(hitix, hitiy) == 0:
                             plt.quiver(objectballx[k],objectbally[k],all_vectors_BHx[k][j],all_vectors_BHy[k][j],color='blue',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
                             plt.quiver(objectballx[i],objectbally[i],temkx,temky,color='blue',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
                             plt.quiver(cuex,cuey,temix,temiy,color='blue',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
+                            temproute = route(cue=[cuex,cuey],cuetoivector=[temix, temiy], objectballi=[objectballx[i],objectbally[i]],itok2vector=[temkx,temky], 
+                                              objectballk2=[objectballx[k],objectbally[k]],toholevector=[all_vectors_BHx[k][j],all_vectors_BHy[k][j]],n=1,
+                                              k2tok1vector=[0,0],objectballk1=[0,0])
+                            ValidRoute.append(temproute)
                         
 
             if all_btball[i][j] == 2:
@@ -362,8 +401,8 @@ if __name__ == '__main__':
                     k2 = temp
                 elif k1dis == k2dis:
                     #compare (k1 to hole dis) and (k2 to hole dis), use the shortest   
-                    k1toadis = disandvec(aimpointx[j],aimpointy[j],objectballx[k1],objectbally[k1])
-                    k2toadis = disandvec(aimpointx[j],aimpointy[j],objectballx[k2],objectbally[k2])
+                    k1toadis = disandvec(aimpointx[j],aimpointy[j],objectballx[k1],objectbally[k1])[0]
+                    k2toadis = disandvec(aimpointx[j],aimpointy[j],objectballx[k2],objectbally[k2])[0]
                     if k1toadis >= k2toadis:
                         temp = k1 
                         k1 = k2
@@ -372,6 +411,82 @@ if __name__ == '__main__':
                         k1 = k1
                         k2 = k2
                 #start to find valid route
+                if all_btball[k1][j] == 0 and all_btball[k2][j] == 0:
+                    hitk1xpere, hitk1ypere = findhitpoint(objectballx[k1],objectbally[k1],all_vectors_BHx[k1][j],all_vectors_BHy[k1][j])
+                    hitk2xpere, hitk2ypere = findhitpoint(objectballx[k2],objectbally[k2],all_vectors_BHx[k2][j],all_vectors_BHy[k2][j])
+                    #objectballi to both hitpoints 
+                    temk1xpere = hitk1xpere-objectballx[i]
+                    temk1ypere = hitk1ypere-objectbally[i]
+                    temk2xpere = hitk2xpere-objectballx[i]
+                    temk2ypere = hitk2ypere-objectbally[i]
+                    dotproductK1 = all_vectors_BHx[k1][j]*temk1xpere + all_vectors_BHy[k1][j]*temk1ypere
+                    dotproductK2 = all_vectors_BHx[k2][j]*temk2xpere + all_vectors_BHy[k2][j]*temk2ypere
+                    #2 interrupting ball but only kiss one ball
+                    #K1
+                    for p in range(0,n):
+                        tempItoK1dis = dottovector(objectballx[k1],objectbally[k1],temk1xpere,temk1ypere,objectballx[p],objectbally[p])
+                        disItoK1 = math.sqrt(abs(temk1xpere)**2+abs(temk1ypere)**2)
+                        disItoP = disandvec(objectballx[p],objectbally[p],objectballx[i],objectbally[i])[0]
+                        if 0 <= tempItoK1dis < 2*r and disItoP < disItoK1+R:
+                            ballinwayItoK1 = 1
+                            break
+                        else:
+                            ballinwayItoK1 = 0
+                    if ballinwayItoK1 == 0 and dotproductK1 > 0 and outofbound(hitk1xpere, hitk1ypere) == 0:
+                        hitix, hitiy = findhitpoint(objectballx[i],objectbally[i],temk1xpere,temk1ypere)
+                        temix = hitix - cuex
+                        temiy = hitiy - cuey
+                        dotproducti = temix*temk1xpere + temiy*temk1ypere
+                        for o in range(0,n):
+                            tempCtoK1dis = dottovector(cuex,cuey,temix,temiy,objectballx[o],objectbally[o])
+                            disCtoI = math.sqrt(abs(temix)**2+abs(temiy)**2)
+                            disCtoO = disandvec(cuex,cuey,objectballx[o],objectbally[o])[0]
+                            if 0 <= tempCtoK1dis < 2*r and disCtoO < disCtoI+R:
+                                ballinwayCI2 = 1
+                                break
+                            else: 
+                                ballinwayCI2 = 0
+                        if  ballinwayCI2 == 0 and dotproducti > 0 and outofbound(hitix, hitiy) == 0:
+                            plt.quiver(objectballx[k1],objectbally[k1],all_vectors_BHx[k1][j],all_vectors_BHy[k1][j],color='brown',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
+                            plt.quiver(objectballx[i],objectbally[i],temk1xpere,temk1ypere,color='brown',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
+                            plt.quiver(cuex,cuey,temix,temiy,color='brown',units="xy",angles="xy",scale_units="xy",scale=1, width=3)   
+                            temproute = route(cue=[cuex,cuey],cuetoivector=[temix, temiy], objectballi=[objectballx[i],objectbally[i]],itok2vector=[temk1xpere,temk1ypere], 
+                                              objectballk2=[objectballx[k1],objectbally[k1]],toholevector=[all_vectors_BHx[k1][j],all_vectors_BHy[k1][j]],n=1,
+                                              k2tok1vector=[0,0],objectballk1=[0,0])
+                            ValidRoute.append(temproute)
+                    #K2 
+                    for p in range(0,n):
+                        tempItoK2dis = dottovector(objectballx[k2],objectbally[k2],temk2xpere,temk2ypere,objectballx[p],objectbally[p])
+                        disItoK2 = math.sqrt(abs(temk2xpere)**2+abs(temk2ypere)**2)
+                        disItoP = disandvec(objectballx[p],objectbally[p],objectballx[i],objectbally[i])[0]
+                        if 0 <= tempItoK1dis < 2*r and disItoP < disItoK2+R:
+                            ballinwayItoK2 = 1
+                            break
+                        else:
+                            ballinwayItoK2 = 0
+                    if ballinwayItoK2 == 0 and dotproductK2 > 0 and outofbound(hitk2xpere, hitk2ypere) == 0:
+                        hitix, hitiy = findhitpoint(objectballx[i],objectbally[i],temk2xpere,temk2ypere)
+                        temix = hitix - cuex
+                        temiy = hitiy - cuey
+                        dotproducti = temix*temk2xpere + temiy*temk2ypere
+                        for o in range(0,n):
+                            tempCtoK2dis = dottovector(cuex,cuey,temix,temiy,objectballx[o],objectbally[o])
+                            disCtoI = math.sqrt(abs(temix)**2+abs(temiy)**2)
+                            disCtoO = disandvec(cuex,cuey,objectballx[o],objectbally[o])[0]
+                            if 0 <= tempCtoK1dis < 2*r and disCtoO < disCtoI+R:
+                                ballinwayCI2 = 1
+                                break
+                            else: 
+                                ballinwayCI2 = 0
+                        if  ballinwayCI2 == 0 and dotproducti > 0 and outofbound(hitix, hitiy) == 0:
+                            plt.quiver(objectballx[k2],objectbally[k2],all_vectors_BHx[k2][j],all_vectors_BHy[k2][j],color='brown',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
+                            plt.quiver(objectballx[i],objectbally[i],temk2xpere,temk2ypere,color='brown',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
+                            plt.quiver(cuex,cuey,temix,temiy,color='brown',units="xy",angles="xy",scale_units="xy",scale=1, width=3)   
+                            temproute = route(cue=[cuex,cuey],cuetoivector=[temix, temiy], objectballi=[objectballx[i],objectbally[i]],itok2vector=[temk2xpere,temk2ypere], 
+                                              objectballk2=[objectballx[k2],objectbally[k2]],toholevector=[all_vectors_BHx[k2][j],all_vectors_BHy[k2][j]],n=1,
+                                              k2tok1vector=[0,0],objectballk1=[0,0])
+                            ValidRoute.append(temproute)
+
                 if all_btball[k1][j] == 0:
                     hitk1x, hitk1y = findhitpoint(objectballx[k1],objectbally[k1],all_vectors_BHx[k1][j],all_vectors_BHy[k1][j])
                     temk1x = hitk1x-objectballx[k2]
@@ -379,8 +494,6 @@ if __name__ == '__main__':
                     dotproductk1 = all_vectors_BHx[k1][j]*temk1x + all_vectors_BHy[k1][j]*temk1y
                     
                     #before checking if any ball(s) in K2 to K1, check cueball to K1 
-
-
                     for l in range(0,n):
                         tempK2toK1dis = dottovector(objectballx[k2],objectbally[k2],temk1x,temk1y,objectballx[l],objectbally[l])
                         disK2toK1 = math.sqrt(abs(temk1x)**2+abs(temk1y)**2)
@@ -390,7 +503,7 @@ if __name__ == '__main__':
                             break
                         else: 
                             ballinwayIK1 = 0
-                    if ballinwayIK1 == 0 and dotproductk1 > 0:
+                    if ballinwayIK1 == 0 and dotproductk1 > 0 and outofbound(hitk1x, hitk1y) == 0:
                         hitk2x, hitk2y = findhitpoint(objectballx[k2],objectbally[k2],temk1x,temk1y)
                         temk2x = hitk2x-objectballx[i]
                         temk2y = hitk2y-objectbally[i]
@@ -404,7 +517,7 @@ if __name__ == '__main__':
                                 break
                             else: 
                                 ballinwayIK2 = 0
-                        if  ballinwayIK2 == 0 and dotproductk2 > 0:
+                        if  ballinwayIK2 == 0 and dotproductk2 > 0 and outofbound(hitk2x, hitk2y) == 0:
                             #plt.quiver(objectballx[i],objectbally[i],temkx,temky,color='blue',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
                             #draw cue to objectball[i]'s hitpoint 
                             hitix, hitiy = findhitpoint(objectballx[i],objectbally[i],temk2x,temk2y)
@@ -420,12 +533,152 @@ if __name__ == '__main__':
                                     break
                                 else: 
                                     ballinwayCI2 = 0
-                            if  ballinwayCI2 == 0 and dotproducti > 0:
+                            if  ballinwayCI2 == 0 and dotproducti > 0 and outofbound(hitix, hitiy) == 0:
                                 plt.quiver(objectballx[k1],objectbally[k1],all_vectors_BHx[k1][j],all_vectors_BHy[k1][j],color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
                                 plt.quiver(objectballx[k2],objectbally[k2],temk1x,temk1y,color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
                                 plt.quiver(objectballx[i],objectbally[i],temk2x,temk2y,color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
                                 plt.quiver(cuex,cuey,temix,temiy,color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=3)   
+                                temproute = route(cue=[cuex,cuey],cuetoivector=[temix, temiy], objectballi=[objectballx[i],objectbally[i]],itok2vector=[temk2x,temk2y], 
+                                                  objectballk2=[objectballx[k2],objectbally[k2]],k2tok1vector=[temk1x,temk1y], objectballk1=[objectballx[k1],objectbally[k1]],
+                                                  toholevector=[all_vectors_BHx[k1][j],all_vectors_BHy[k1][j]],n=2)
+                                ValidRoute.append(temproute)
+    
+    countN = [0]*6
+    who1 = []
+    who2 = []
+    who3 = []
+    who4 = []
+    who5 = []
+    who6 = []
+    who = []
+    #Check if ValidRoute is empty
+    Numberofroute = len(ValidRoute)
+    if Numberofroute == 0:
+        print("No valid route, start searching for lucky ball") 
+        #Method: cut table into six portion and look for the most dense area and meximum effort to that area 
+        for i in range(0,n):
+            if 0 <= objectballx[i] <= (tablewidth/7)*3 and 0 <= objectbally[i] <= tableheight/2:
+                countN[0] = countN[0] + 1
+                who1.append(i)
+            if (tablewidth/7)*2 <= objectballx[i] <= (tablewidth/7)*5 and 0 <= objectbally[i] <= tableheight/2:
+                countN[1] = countN[1] + 1
+                who2.append(i)
+            if (tablewidth/7)*4 <= objectballx[i] <= tablewidth and 0 <= objectbally[i] <= tableheight/2:
+                countN[2] = countN[2] + 1
+                who3.append(i)
+            if (tablewidth/7)*4 <= objectballx[i] <= tablewidth and tableheight/2 <= objectbally[i] <= tableheight:
+                countN[3] = countN[3] + 1
+                who4.append(i)
+            if (tablewidth/7)*2 <= objectballx[i] <= (tablewidth/7)*5 and tableheight/2 <= objectbally[i] <= tableheight:
+                countN[4] = countN[4] + 1
+                who5.append(i)
+            if 0 <= objectballx[i] <= (tablewidth/7)*3 and tableheight/2 <= objectbally[i] <= tableheight:
+                countN[5] = countN[5] + 1
+                who6.append(i)
+        who.append(who1)
+        who.append(who2)
+        who.append(who3)
+        who.append(who4)
+        who.append(who5)
+        who.append(who6)
 
+        print("area 1:",countN[0])
+        print("area 2:",countN[1])
+        print("area 3:",countN[2])
+        print("area 4:",countN[3])
+        print("area 5:",countN[4])
+        print("area 6:",countN[5])
+        print("most dense area:",countN.index(max(countN)))
+        print("Number of ball in this area:",max(countN))
+        print("who is in this area:",who[countN.index(max(countN))])
+        #form route from closest ball in most dense area
+        thisareadis = []
+        for i in range(0,len(who[countN.index(max(countN))])):
+            tempdis = disandvec(objectballx[who[countN.index(max(countN))][i]],objectbally[who[countN.index(max(countN))][i]],cuex, cuey)[0]
+            thisareadis.append(tempdis)
+        
+        print("this area all dis:",thisareadis)
+        print("shortest distance in this area:",min(thisareadis))
+        print("hit this ball:",who[countN.index(max(countN))][thisareadis.index(min(thisareadis))])
+
+        luckyindex = who[countN.index(max(countN))][thisareadis.index(min(thisareadis))]
+        luckyvectorx = objectballx[luckyindex] - cuex
+        luckyvectory = objectbally[luckyindex] - cuey
+
+        luckyroute = route(cue=[cuex,cuey],cuetoivector=[luckyvectorx, luckyvectory], objectballi=[objectballx[luckyindex],objectbally[luckyindex]],
+                                      toholevector=[1,1],n=0,
+                                      itok2vector=[0,0],objectballk2=[0,0],k2tok1vector=[0,0],objectballk1=[0,0])
+        ValidRoute.append(luckyroute)
+
+
+
+    #Plot table boundry
+    plt.plot([holex[0],holex[1]],[holey[0],holey[1]],[holex[1],holex[2]],[holey[1],holey[2]],
+             [holex[2],holex[3]],[holey[2],holey[3]],[holex[3],holex[4]],[holey[3],holey[4]],
+             [holex[4],holex[5]],[holey[4],holey[5]],[holex[5],holex[0]],[holey[5],holey[0]],color='black')
+    
+    #plot aim point
+    for j in range(len(aimpointx)):
+        aimpoint = plt.Circle((aimpointx[j], aimpointy[j]),
+                            r, color="red", alpha=0.2)
+        plt.text(aimpointx[j],aimpointy[j],j,color='red',fontsize=15)
+        plt.gca().add_patch(aimpoint)
+
+    #plot vector from aiming point to hole
+    for i in range(0,6):
+        plt.quiver(aimpointx[i],aimpointy[i],aimtoholex[i],aimtoholey[i],color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
+
+    #PLOT ALL BALLS AND HOLES
+        #plot objectballs
+    for i in range(len(objectballx)-1):
+        objectball = plt.Circle((objectballx[i], objectbally[i]),
+                            r, color='blue', alpha=0.5)
+        plt.text(objectballx[i],objectbally[i],i,fontsize=15)
+        plt.gca().add_patch(objectball)
+    
+    #plot cue ball
+    plt.gca().add_patch(plt.Circle((cuex, cuey), r, color='red'))
+
+    #plot holes
+    for j in range(len(holex)):
+        hole = plt.Circle((holex[j], holey[j]),
+                            rb, color="black", alpha=0.7)
+        #plt.text(holex[j],holey[j],j,color='white',fontsize=15)
+        plt.gca().add_patch(hole)
+
+    plt.title("sim pool table") 
+    plt.axis([0, tablewidth, tableheight, 0])
+    plt.axis("equal")
+    plt.show()
+
+    #plot the best route
+    #return score,cuefinalvector,cue,cuetoivector, objectballi, itok2vector, objectballk2 ,k2tok1vector, objectballk1, toholevector,n
+    score = []
+    print("Number of valid route:",len(ValidRoute))
+    for i in range(0,len(ValidRoute)):
+        tempscore = ValidRoute[i][0]
+        score.append(tempscore)
+    
+    bestrouteindex = score.index(max(score))
+    print("all score:",score)
+    print("best score:",max(score))
+    print("best route index:",bestrouteindex)
+
+    Nofinterruptball = ValidRoute[bestrouteindex][-1]
+    if Nofinterruptball == 0:
+        plt.quiver(ValidRoute[bestrouteindex][4][0],ValidRoute[bestrouteindex][4][1],ValidRoute[bestrouteindex][-2][0],ValidRoute[bestrouteindex][-2][1],color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
+        plt.quiver(cuex,cuey,ValidRoute[bestrouteindex][3][0],ValidRoute[bestrouteindex][3][1],color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
+        #final cuevector
+        plt.quiver(cuex+ValidRoute[bestrouteindex][3][0],cuey+ValidRoute[bestrouteindex][3][1],ValidRoute[bestrouteindex][2][0],ValidRoute[bestrouteindex][2][1],color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
+    elif Nofinterruptball == 1:
+        plt.quiver(ValidRoute[bestrouteindex][6][0],ValidRoute[bestrouteindex][6][1],ValidRoute[bestrouteindex][-2][0],ValidRoute[bestrouteindex][-2][1],color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
+        plt.quiver(ValidRoute[bestrouteindex][4][0],ValidRoute[bestrouteindex][4][1],ValidRoute[bestrouteindex][5][0],ValidRoute[bestrouteindex][5][1],color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
+        plt.quiver(cuex,cuey,ValidRoute[bestrouteindex][3][0],ValidRoute[bestrouteindex][3][1],color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
+    elif Nofinterruptball == 2:
+        plt.quiver(ValidRoute[bestrouteindex][8][0],ValidRoute[bestrouteindex][8][1],ValidRoute[bestrouteindex][9][0],ValidRoute[bestrouteindex][9][1],color='blue',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
+        plt.quiver(ValidRoute[bestrouteindex][6][0],ValidRoute[bestrouteindex][6][1],ValidRoute[bestrouteindex][7][0],ValidRoute[bestrouteindex][7][1],color='blue',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
+        plt.quiver(ValidRoute[bestrouteindex][4][0],ValidRoute[bestrouteindex][4][1],ValidRoute[bestrouteindex][5][0],ValidRoute[bestrouteindex][5][1],color='blue',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
+        plt.quiver(cuex,cuey,ValidRoute[bestrouteindex][3][0],ValidRoute[bestrouteindex][3][1],color='blue',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
 
     #Plot table boundry
     plt.plot([holex[0],holex[1]],[holey[0],holey[1]],[holex[1],holex[2]],[holey[1],holey[2]],
