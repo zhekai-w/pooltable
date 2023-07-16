@@ -139,13 +139,13 @@ if __name__ == '__main__':
 
     illogical = 1
     while illogical:
-        cuex, cuey, objectballx, objectbally, n = generateballs(10, r)
+        #cuex, cuey, objectballx, objectbally, n = generateballs(10, r)
         #objectball[-1] is cue ball
-        # objectballx = [300,300,300,300,300,300+2*r,300+2*r,300+2*r,300+2*r,300+4*r,300+4*r,300+4*r,300+6*r,300+6*r,300+8*r]
-        # objectbally = [457,457+2*r,457+4*r,457-2*r,457-4*r,457+r,457+3*r,457-r,457-3*r,457,457+2*r,457-2*r,457+r,457-r,457]
-        # cuex = 1620
-        # cuey = 457
-        # n = 15
+        objectballx = [300,300,300,300,300,300+2*r,300+2*r,300+2*r,300+2*r,300+4*r,300+4*r,300+4*r,300+6*r,300+6*r,300+8*r]
+        objectbally = [457,457+2*r,457+4*r,457-2*r,457-4*r,457+r,457+3*r,457-r,457-3*r,457,457+2*r,457-2*r,457+r,457-r,457]
+        cuex = 1620
+        cuey = 457
+        n = 15
         objectballx.append(cuex)
         objectbally.append(cuey)
         print("number of balls:",n)
@@ -669,7 +669,7 @@ if __name__ == '__main__':
         plt.quiver(ValidRoute[bestrouteindex][4][0],ValidRoute[bestrouteindex][4][1],ValidRoute[bestrouteindex][-2][0],ValidRoute[bestrouteindex][-2][1],color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
         plt.quiver(cuex,cuey,ValidRoute[bestrouteindex][3][0],ValidRoute[bestrouteindex][3][1],color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
         #final cuevector
-        plt.quiver(cuex+ValidRoute[bestrouteindex][3][0],cuey+ValidRoute[bestrouteindex][3][1],ValidRoute[bestrouteindex][2][0],ValidRoute[bestrouteindex][2][1],color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
+        #plt.quiver(cuex+ValidRoute[bestrouteindex][3][0],cuey+ValidRoute[bestrouteindex][3][1],ValidRoute[bestrouteindex][2][0],ValidRoute[bestrouteindex][2][1],color='green',units="xy",angles="xy",scale_units="xy",scale=1, width=3)
     elif Nofinterruptball == 1:
         plt.quiver(ValidRoute[bestrouteindex][6][0],ValidRoute[bestrouteindex][6][1],ValidRoute[bestrouteindex][-2][0],ValidRoute[bestrouteindex][-2][1],color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
         plt.quiver(ValidRoute[bestrouteindex][4][0],ValidRoute[bestrouteindex][4][1],ValidRoute[bestrouteindex][5][0],ValidRoute[bestrouteindex][5][1],color='red',units="xy",angles="xy",scale_units="xy",scale=1, width=5)
@@ -713,6 +713,12 @@ if __name__ == '__main__':
                             rb, color="black", alpha=0.7)
         #plt.text(holex[j],holey[j],j,color='white',fontsize=15)
         plt.gca().add_patch(hole)
+
+    #colored background
+    plt.axvspan(0,(tablewidth/7)*3,facecolor='b',alpha=0.3)
+    plt.axvspan((tablewidth/7)*2,(tablewidth/7)*5,facecolor='g',alpha=0.3)
+    plt.axvspan((tablewidth/7)*4,tablewidth,facecolor='y',alpha=0.3)
+    
 
     plt.title("sim pool table") 
     plt.axis([0, tablewidth, tableheight, 0])
