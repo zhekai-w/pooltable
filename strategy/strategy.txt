@@ -1,0 +1,14 @@
+LET'S SAY N CUEBALLS (INDEXING IS VERY IMPORTANT)
+
+create 2(one for x one for y) N-1 by 6 2d array to store clean_vectors_BH
+loop from i 0~N-1	
+	draw vectors from ball i to each aiming point. save 6 vetors_BH. 
+	draw vectors from ball i to the rest of cueballs. save N-1 vectors_BB.
+
+	loop from j 0~5
+		dotproducts of vectors_BH j and vectors_BB 0~N-1.
+		if dotproduct > 0
+			if vectors_BH i have no cueballs between. (can be sum into one fuction)
+				save vectors_BH j in clean_vectors_BH in i row (meaning cueball i has clean vector_BH j)
+			else count how many balls is between cueballs and hole
+				
